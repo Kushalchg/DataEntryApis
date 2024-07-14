@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"www.github.com/kushalchg/DataEntryApis/global"
 	"www.github.com/kushalchg/DataEntryApis/initializers"
 	"www.github.com/kushalchg/DataEntryApis/models"
+	"www.github.com/kushalchg/DataEntryApis/util"
 )
 
 func UserRegister(c *gin.Context) {
@@ -35,7 +35,6 @@ func UserRegister(c *gin.Context) {
 	// 		"detail": err.Error(),
 	// 	})
 	// 	return
-
 	// }
 
 	// // create hash password
@@ -44,25 +43,32 @@ func UserRegister(c *gin.Context) {
 	// if err != nil {
 	// 	// error occured on creating hash password
 	// 	log.Fatal("error on creating hash password")
-
 	// }
 
 	// //It takes ConformPassword from user but doesn't upload ot the database
 	// // ConformPassword is there to prevent user to enter unintended password.
 	// user := types.User{Email: body.Email, Password: string(hashPassword)}
 	user := models.User{Email: body.Email, Password: body.Password}
-
-	result := initializers.DB.Create(&user)
-
-	global.Logger.Printf("the result and error is  %v and %v \n", result, result.Error)
-	if result.Error != nil {
-
+	util.SendMail()
+	tx := initializers.DB.Begin()
+	if err := tx.Create(&user).Error; err != nil {
+		tx.Rollback()
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"error":  "error occur while user register",
-			"detail": result.Error.Error(),
+			"error":  "error occurred while registering user",
+			"detail": err.Error(),
 		})
 		return
 	}
+	tx.Commit()
+
+	// result := initializers.DB.Create(&user)
+	// if result.Error != nil {
+	// 	c.IndentedJSON(http.StatusBadRequest, gin.H{
+	// 		"error":  "error occur while user register",
+	// 		"detail": result.Error.Error(),
+	// 	})
+	// 	return
+	// }
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"value": "user created successfully",

@@ -1,4 +1,4 @@
 migration:
-	go run migrate/migrate.go
+	go run migration/migration.go
 run:
 	go run main.go
