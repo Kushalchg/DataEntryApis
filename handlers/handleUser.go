@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -54,9 +55,13 @@ func UserRegister(c *gin.Context) {
 
 	}
 
+	// generating random intiger value with 6 digit and sent to the email for verification
+	randomInt := 500000 + rand.Intn(20000)
+
 	// //It takes ConformPassword from user but doesn't upload ot the database
 	// // ConformPassword is there to prevent user to enter unintended password.
-	user := models.User{Email: body.Email, Password: string(hashPassword)}
+
+	user := models.User{Email: body.Email, Password: string(hashPassword), CoformCode: randomInt}
 
 	// insert the data into table
 	result := initializers.DB.Create(&user)
@@ -67,8 +72,9 @@ func UserRegister(c *gin.Context) {
 		})
 		return
 	}
-	hello := 2000
-	err = util.SendMail([]string{body.Email}, []byte(fmt.Sprintf("Verify your email with %v", hello)))
+
+	// send mail to user provided email address with conformation code
+	err = util.SendMail([]string{body.Email}, []byte(fmt.Sprintf("Verify your email with %v", randomInt)))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error":  "unable to send you email",
@@ -78,8 +84,77 @@ func UserRegister(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"value": "user created successfully",
-		"data":  "the mail is sent to your email",
+		"value": "Thank you for registration",
+		"data":  "Conformation mail is sent to your email",
 	})
 
+}
+
+func UserLogin(c *gin.Context) {
+	var user models.User
+	var body struct {
+		Email    string `json:"email" validate:"required,email"  `
+		Password string `json:"password" validate:"required"`
+	}
+
+	// parse the response body data
+	if err := c.Bind(&body); err != nil {
+		c.IndentedJSON(http.StatusUnauthorized, gin.H{
+			"error":  "Unable to bind body, try again",
+			"detail": err,
+		})
+		return
+	}
+	// check whether the provided email is email format and password is not empty
+	if err := global.Validate.Struct(&body); err != nil {
+		c.IndentedJSON(http.StatusUnauthorized, gin.H{
+			"error":  "Unable to validate, try again",
+			"detail": err,
+		})
+		return
+	}
+	// retrieve the value from database with provided email
+	result := initializers.DB.Find(&user, "email=?", body.Email)
+	global.Logger.Printf("value is %v", result)
+
+	// check the provided password is correct or not by compare with database password
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
+
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"data":   "Credential doesnot match",
+			"result": "You probably provide wrong password",
+		})
+		return
+	}
+	// generate access  jwt tokens
+	accessToken, err := util.GenerateAccessToken(body.Email, "user", user.ID)
+
+	if err != nil {
+		c.IndentedJSON(http.StatusNotAcceptable, gin.H{
+			"error":  "error while token generation",
+			"detail": err.Error(),
+		})
+		return
+	}
+
+	// generate refresh jwt tokens
+	refeshToken, err := util.GenerateRefreshToken(body.Email, "user", user.ID)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotAcceptable, gin.H{
+			"error":  "error while token generation",
+			"detail": err.Error(),
+		})
+		return
+	}
+
+	// provide the response
+
+	c.IndentedJSON(http.StatusOK, gin.H{
+		"detail": "Login Successful",
+		"data": gin.H{
+			"refresh": refeshToken,
+			"access":  accessToken,
+		},
+	})
 }
