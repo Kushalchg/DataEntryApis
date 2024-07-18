@@ -128,6 +128,8 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 	// generate access  jwt tokens
+
+	global.Logger.Printf("the email and is value is%v %v \n ", body.Email, user.ID)
 	accessToken, err := util.GenerateAccessToken(body.Email, "user", user.ID)
 
 	if err != nil {

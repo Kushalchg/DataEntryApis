@@ -8,10 +8,10 @@ import (
 )
 
 type MyClaims struct {
-	email string
-	cat   string
-	role  string
-	id    uint
+	Email string `json:"email,omitempty"`
+	Cat   string `json:"cat,omitempty"`
+	Role  string `json:"role,omitempty"`
+	Id    uint   `json:"id,omitempty"`
 	jwt.StandardClaims
 }
 
@@ -19,10 +19,10 @@ func GenerateAccessToken(uemail, urole string, uid uint) (string, error) {
 	// load key from env file
 	key := []byte(os.Getenv("KEY"))
 	accessClaims := MyClaims{
-		email: uemail,
-		cat:   "access",
-		role:  urole,
-		id:    uid,
+		Email: uemail,
+		Cat:   "access",
+		Role:  urole,
+		Id:    uid,
 		StandardClaims: jwt.StandardClaims{
 			IssuedAt:  time.Now().Unix(),
 			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
@@ -39,10 +39,10 @@ func GenerateRefreshToken(uemail, urole string, uid uint) (string, error) {
 	// load key from env file
 	key := []byte(os.Getenv("KEY"))
 	accessClaims := MyClaims{
-		email: uemail,
-		cat:   "refresh",
-		role:  urole,
-		id:    uid,
+		Email: uemail,
+		Cat:   "refresh",
+		Role:  urole,
+		Id:    uid,
 		StandardClaims: jwt.StandardClaims{
 			IssuedAt:  time.Now().Unix(),
 			ExpiresAt: time.Now().Add(time.Hour * 50).Unix(),

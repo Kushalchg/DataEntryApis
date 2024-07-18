@@ -1,10 +1,9 @@
 package routes
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"www.github.com/kushalchg/DataEntryApis/handlers"
+	"www.github.com/kushalchg/DataEntryApis/util"
 )
 
 func UserRoutes(r *gin.Engine) {
@@ -12,10 +11,5 @@ func UserRoutes(r *gin.Engine) {
 	r.POST("/user/login", handlers.UserLogin)
 }
 func DataRoutes(r *gin.Engine) {
-	r.GET("/data", func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, gin.H{
-			"success": "ok form data route",
-		})
-
-	})
+	r.POST("/insert-data", util.GeneralAuth(), handlers.InsertEntryData)
 }
