@@ -113,17 +113,24 @@ func UserLogin(c *gin.Context) {
 		})
 		return
 	}
-	// retrieve the value from database with provided email
-	result := initializers.DB.Find(&user, "email=?", body.Email)
-	global.Logger.Printf("value is %v", result)
 
+	// retrieve the value from database with provided email
+	result := initializers.DB.Where("email=?", body.Email).First(&user)
+
+	if result.Error != nil {
+		c.IndentedJSON(http.StatusUnauthorized, gin.H{
+			"error":  "Account with this credential doesnot exist",
+			"detail": result.Error.Error(),
+		})
+		return
+	}
 	// check the provided password is correct or not by compare with database password
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"data":   "Credential doesnot match",
-			"result": "You probably provide wrong password",
+			"result": "You probably provide wrong password ",
 		})
 		return
 	}
@@ -159,4 +166,21 @@ func UserLogin(c *gin.Context) {
 			"access":  accessToken,
 		},
 	})
+}
+
+func VerifyUser(c *gin.Context) {
+
+}
+
+func UpdateProfile(c *gin.Context) {
+
+}
+func GetProfile(c *gin.Context) {
+
+}
+func GetRefresh(c *gin.Context) {
+
+}
+func UserLogout(c *gin.Context) {
+
 }

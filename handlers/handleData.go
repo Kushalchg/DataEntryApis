@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"www.github.com/kushalchg/DataEntryApis/global"
 	"www.github.com/kushalchg/DataEntryApis/initializers"
 	"www.github.com/kushalchg/DataEntryApis/models"
+	"www.github.com/kushalchg/DataEntryApis/util"
 )
 
 func InsertEntryData(c *gin.Context) {
@@ -14,9 +16,10 @@ func InsertEntryData(c *gin.Context) {
 		Tname     string  `validate:"required" json:"tname"`
 		Tlength   float32 `validate:"required" json:"tlength"`
 		Tdiameter float32 `josn:"tdiameter"`
-		Tlogi     float32 `josn:"tlongi"`
+		Tlongi    float32 `josn:"tlongi"`
 		Tlatt     float32 `josn:"tlatt"`
 	}
+
 	// bind the request data into body
 	if err := c.Bind(&body); err != nil {
 		global.Logger.Printf("binding request body Failed %s \n", err)
@@ -26,6 +29,7 @@ func InsertEntryData(c *gin.Context) {
 		})
 		return
 	}
+
 	// validate the struct
 	if err := global.Validate.Struct(&body); err != nil {
 		global.Logger.Printf("validation Failed %s \n", err)
@@ -33,12 +37,21 @@ func InsertEntryData(c *gin.Context) {
 			"error":  "validation failed",
 			"detail": err,
 		})
-
 		return
-
 	}
+	//get token from request header and parse and get the id of user
+	authorization := c.Request.Header["Authorization"][0]
+	claims, err := util.ParseToken(strings.Split(authorization, " ")[1])
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"error":  "Technical Error occur",
+			"detail": err,
+		})
+		return
+	}
+	global.Logger.Printf("the authorixation header is %v\n", authorization)
 
-	dataEntry := models.EntryData{Tname: body.Tname, Tlength: body.Tlength, Tdiameter: body.Tdiameter, Tlogi: body.Tlogi, Tlatt: body.Tlatt, UId: 1}
+	dataEntry := models.EntryData{Tname: body.Tname, Tlength: body.Tlength, Tdiameter: body.Tdiameter, Tlongi: body.Tlongi, Tlatt: body.Tlatt, UId: int(claims.Id)}
 	result := initializers.DB.Create(&dataEntry)
 
 	if result.Error != nil {
@@ -52,5 +65,20 @@ func InsertEntryData(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"value": "data inserted successfully",
 	})
+
+}
+
+func DeleteData(c *gin.Context) {
+
+}
+
+func UpdateData(c *gin.Context) {
+
+}
+
+func GetAllData(c *gin.Context) {
+
+}
+func GetSingleData(c *gin.Context) {
 
 }
