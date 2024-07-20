@@ -13,3 +13,7 @@ func UserRoutes(r *gin.Engine) {
 func DataRoutes(r *gin.Engine) {
 	r.POST("/insert-data", util.GeneralAuth(), handlers.InsertEntryData)
 }
+func FileRoutes(r *gin.Engine) {
+
+	r.POST("/upload", handlers.UploadFile)
+}

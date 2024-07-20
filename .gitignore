@@ -2,3 +2,5 @@
 .env
 #logfiles
 logfiles/
+#uploaded files
+uploadedFiles/
