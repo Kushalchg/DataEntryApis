@@ -16,4 +16,5 @@ func DataRoutes(r *gin.Engine) {
 func FileRoutes(r *gin.Engine) {
 
 	r.POST("/upload", handlers.UploadFile)
+	r.GET("/downloadFile", handlers.GetFile)
 }

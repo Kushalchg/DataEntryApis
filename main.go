@@ -23,15 +23,19 @@ func main() {
 	// initializers.DB.AutoMigrate(&models.User{})
 	global.Logger = util.InitializeLogger()
 	r := gin.Default()
+	//setting max file sise
+	r.MaxMultipartMemory = 1 << 20
+
+	// cors setup
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"}, // You can specify the allowed origins here
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"PUT", "PATCH", "POST", "GET", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-
+	// routes setup
 	routes.UserRoutes(r)
 	routes.DataRoutes(r)
 	routes.FileRoutes(r)
