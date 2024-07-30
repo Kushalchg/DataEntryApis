@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"www.github.com/kushalchg/DataEntryApis/global"
+	"www.github.com/kushalchg/DataEntryApis/util"
 )
 
 func UploadFile(c *gin.Context) {
@@ -30,9 +31,10 @@ func UploadFile(c *gin.Context) {
 	global.Logger.Println(file.Filename)
 
 	// Upload the file to specific dst.
-	// dst := filepath.Join("uploadedFiles", file.Filename)
-	c.SaveUploadedFile(file, fmt.Sprintf("uploadedFiles/%v", file.Filename))
 
+	c.SaveUploadedFile(file, fmt.Sprintf("uploadedFiles/PF_%v", file.Filename))
+
+	util.AsciiConverter(fmt.Sprintf("uploadedFiles/PF_%v", file.Filename))
 	c.IndentedJSON(http.StatusOK, gin.H{
 
 		"message": fmt.Sprintf("'%s' uploaded!", file.Filename),
