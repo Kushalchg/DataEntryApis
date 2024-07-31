@@ -1,5 +1,5 @@
 
 run:
-	go run main.go
+	@go run main.go
 migrate:
-	go run devhelper/migration.go
+	@go run devhelper/migration.go

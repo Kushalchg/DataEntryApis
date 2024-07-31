@@ -4,3 +4,5 @@
 logfiles/
 #uploaded files
 uploadedFiles/
+#output of file
+output/

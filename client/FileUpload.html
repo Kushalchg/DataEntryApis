@@ -8,7 +8,7 @@
   <body>
     <h2>Upload a File</h2>
     <form
-      action="http://localhost:8080/upload"
+      action="http://localhost:8080/file/upload"
       method="post"
       enctype="multipart/form-data"
     >
@@ -17,8 +17,25 @@
       <input type="submit" value="Upload" />
     </form>
     <h2>Download a File</h2>
-    <form action="http://localhost:8080/downloadFile" method="get">
+
+    <form
+      action="http://localhost:8080/file/download"
+      method="get"
+      enctype="application/json"
+    >
+      <button type="submit">Download Html file</button>
+    </form>
+    <form id="downloadForm">
+      <input type="text" id="filename" placeholder="Enter filename" required />
       <button type="submit">Download File</button>
     </form>
+    <script>
+      document.getElementById("downloadForm").onsubmit = function (e) {
+        e.preventDefault();
+        var filename = document.getElementById("filename").value;
+        window.location.href =
+          "http://localhost:8080/file/download/" + encodeURIComponent(filename);
+      };
+    </script>
   </body>
 </html>

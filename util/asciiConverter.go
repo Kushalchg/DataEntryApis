@@ -13,7 +13,7 @@ import (
 	"www.github.com/kushalchg/DataEntryApis/global"
 )
 
-func AsciiConverter(filePath string) {
+func AsciiConverter(filePath string) (htmlFile, txtFile string) {
 	// retriving the file name value from filepath
 	fileName := strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))
 
@@ -39,8 +39,10 @@ func AsciiConverter(filePath string) {
 	defer file.Close()
 	png.Encode(grayFile, grayImage)
 	resultStr := MapAscii(grayImage)
-	saveToFile(resultStr, "output/result.txt")
-	AsciiToHTML(resultStr)
+	saveToFile(resultStr, fmt.Sprintf("output/%v.txt", fileName))
+	AsciiToHTML(resultStr, fileName)
+
+	return fmt.Sprintf("output/%v.txt", fileName), fmt.Sprintf("output/%v.html", fileName)
 
 }
 func LoadImage(filePath string) image.Image {
@@ -77,7 +79,6 @@ func ConvGrayScale(img image.Image) image.Image {
 			color := color.GrayModel.Convert(oldPixel)
 			// // fmt.Print(color)
 			// r, g, b, _ := oldPixel.RGBA()
-
 			// grayValue := 0.299*float64(r) + 0.587*float64(g) + 0.114*float64(b)
 			// color := color.Gray{uint8(grayValue / 256)}
 			grayImage.Set(i, j, color)
@@ -121,8 +122,8 @@ func saveToFile(asciiArt []string, filename string) error {
 	return nil
 }
 
-func AsciiToHTML(ascii []string) {
-	HtmlFile, err := os.Create("output/format.html")
+func AsciiToHTML(ascii []string, fileName string) {
+	HtmlFile, err := os.Create(fmt.Sprintf("output/%v.html", fileName))
 	if err != nil {
 		fmt.Println("error while creatig html file")
 	}

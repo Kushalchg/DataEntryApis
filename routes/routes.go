@@ -15,6 +15,10 @@ func DataRoutes(r *gin.Engine) {
 }
 func FileRoutes(r *gin.Engine) {
 
-	r.POST("/upload", handlers.UploadFile)
-	r.GET("/downloadFile", handlers.GetFile)
+	file := r.Group("/file")
+	{
+		file.POST("/upload", handlers.UploadFile)
+		file.GET("/download", handlers.GetFile)
+
+	}
 }
