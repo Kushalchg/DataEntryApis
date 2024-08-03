@@ -1,18 +1,18 @@
 package util
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"www.github.com/kushalchg/DataEntryApis/global"
 )
 
 func GeneralAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authorization := c.Request.Header["Authorization"][0]
 		// check if there is no authorization
-		global.Logger.Printf("the authorization header value is %v\n", authorization)
+		fmt.Printf("the authorization header value is %v\n", authorization)
 		if authorization == "" {
 			c.IndentedJSON(http.StatusUnauthorized, gin.H{
 				"error": "you forgot to add authorization header",
@@ -34,7 +34,7 @@ func GeneralAuth() gin.HandlerFunc {
 
 		//check the token is valid or not
 		token := strings.Split(authorization, " ")[1]
-		global.Logger.Printf("the token value is %v\n", token)
+		fmt.Printf("the token value is %v\n", token)
 
 		claims, err := ParseToken(token)
 		if err != nil {
@@ -47,7 +47,7 @@ func GeneralAuth() gin.HandlerFunc {
 		}
 		// check whethet the token is access or not?
 
-		global.Logger.Printf("the category value is %v %v %v\n", claims.Cat, claims.Email, claims.Id)
+		fmt.Printf("the category value is %v %v %v\n", claims.Cat, claims.Email, claims.Id)
 		if claims.Cat != "access" {
 			c.IndentedJSON(http.StatusUnauthorized, gin.H{
 				"error": "Please provide access token",

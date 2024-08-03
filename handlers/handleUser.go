@@ -34,7 +34,7 @@ func UserRegister(c *gin.Context) {
 	// password must contain min 8 letters
 	// conform password must match password
 	if err := global.Validate.Struct(&body); err != nil {
-		global.Logger.Printf("validation Failed %s \n", err)
+		fmt.Printf("validation Failed %s \n", err)
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error":  "required format is not met!",
 			"detail": err.Error(),
@@ -136,7 +136,7 @@ func UserLogin(c *gin.Context) {
 	}
 	// generate access  jwt tokens
 
-	global.Logger.Printf("the email and is value is%v %v \n ", body.Email, user.ID)
+	fmt.Printf("the email and is value is%v %v \n ", body.Email, user.ID)
 	accessToken, err := util.GenerateAccessToken(body.Email, "user", user.ID)
 
 	if err != nil {

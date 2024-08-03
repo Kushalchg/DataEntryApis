@@ -9,7 +9,6 @@ import (
 	"www.github.com/kushalchg/DataEntryApis/global"
 	"www.github.com/kushalchg/DataEntryApis/initializers"
 	"www.github.com/kushalchg/DataEntryApis/routes"
-	"www.github.com/kushalchg/DataEntryApis/util"
 )
 
 func init() {
@@ -21,7 +20,7 @@ func init() {
 
 func main() {
 	// initializers.DB.AutoMigrate(&models.User{})
-	global.Logger = util.InitializeLogger()
+	// global.Logger = util.InitializeLogger()
 	r := gin.Default()
 	r.Static("/converted/images", "./converted/images")
 	//setting max file size

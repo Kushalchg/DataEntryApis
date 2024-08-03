@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"www.github.com/kushalchg/DataEntryApis/global"
 	"www.github.com/kushalchg/DataEntryApis/util"
 )
 
@@ -33,7 +32,7 @@ func UploadFile(c *gin.Context) {
 		})
 		return
 	}
-	global.Logger.Println(file.Filename)
+	fmt.Println(file.Filename)
 
 	// Upload the file to specific dst.
 	actuaFileName := time.Now().UnixMicro()

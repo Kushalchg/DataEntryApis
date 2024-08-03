@@ -13,14 +13,13 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/basicfont"
 	"golang.org/x/image/math/fixed"
-	"www.github.com/kushalchg/DataEntryApis/global"
 )
 
 func AsciiConverter(filePath string) (htmlFile, textFile, imageFile string) {
 	// retriving the file name value from filepath
 	fileName := strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))
 
-	global.Logger.Printf("with the use of filePath package %v", fileName)
+	fmt.Printf("with the use of filePath package %v", fileName)
 
 	image := loadImage(filePath)
 	// greater the image size more clear photo will produce

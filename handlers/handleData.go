@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -22,7 +23,7 @@ func InsertEntryData(c *gin.Context) {
 
 	// bind the request data into body
 	if err := c.Bind(&body); err != nil {
-		global.Logger.Printf("binding request body Failed %s \n", err)
+		fmt.Printf("binding request body Failed %s \n", err)
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error":  "required format is not met",
 			"detail": err,
@@ -32,7 +33,7 @@ func InsertEntryData(c *gin.Context) {
 
 	// validate the struct
 	if err := global.Validate.Struct(&body); err != nil {
-		global.Logger.Printf("validation Failed %s \n", err)
+		fmt.Printf("validation Failed %s \n", err)
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error":  "validation failed",
 			"detail": err,
@@ -49,13 +50,13 @@ func InsertEntryData(c *gin.Context) {
 		})
 		return
 	}
-	global.Logger.Printf("the authorixation header is %v\n", authorization)
+	fmt.Printf("the authorixation header is %v\n", authorization)
 
 	dataEntry := models.EntryData{Tname: body.Tname, Tlength: body.Tlength, Tdiameter: body.Tdiameter, Tlongi: body.Tlongi, Tlatt: body.Tlatt, UId: int(claims.Id)}
 	result := initializers.DB.Create(&dataEntry)
 
 	if result.Error != nil {
-		global.Logger.Printf("data insert  Failed %s \n", result.Error.Error())
+		fmt.Printf("data insert  Failed %s \n", result.Error.Error())
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"error":  "Problom occur while inserting data",
 			"detail": result.Error.Error(),
