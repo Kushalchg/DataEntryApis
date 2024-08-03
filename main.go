@@ -23,8 +23,9 @@ func main() {
 	// initializers.DB.AutoMigrate(&models.User{})
 	global.Logger = util.InitializeLogger()
 	r := gin.Default()
-	//setting max file sise
-	r.MaxMultipartMemory = 1 << 20
+	r.Static("/converted/images", "./converted/images")
+	//setting max file size
+	r.MaxMultipartMemory = 5 << 20
 
 	// cors setup
 	r.Use(cors.New(cors.Config{

@@ -41,11 +41,15 @@ func UploadFile(c *gin.Context) {
 
 	c.SaveUploadedFile(file, fmt.Sprintf("uploadedFiles/%v", actuaFileName))
 	htmlFile, textFile, imageFile := util.AsciiConverter(fmt.Sprintf("uploadedFiles/%v", actuaFileName))
+
+	baseURL := "http://localhost:8080"
+	imageURL := fmt.Sprintf("%s/converted/images/%v.png", baseURL, actuaFileName)
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"message": fmt.Sprintf("'%s' uploaded!", file.Filename),
-		"html":    htmlFile,
-		"text":    textFile,
-		"image":   imageFile,
+		"message":  fmt.Sprintf("'%s' uploaded!", file.Filename),
+		"html":     htmlFile,
+		"text":     textFile,
+		"image":    imageFile,
+		"imageUrl": imageURL,
 	})
 }
 
