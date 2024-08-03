@@ -14,7 +14,7 @@ import (
 
 func init() {
 	global.Validate = validator.New(validator.WithRequiredStructEnabled())
-	initializers.LoadEnv()
+	// initializers.LoadEnv()
 	initializers.Connectdb()
 
 }
