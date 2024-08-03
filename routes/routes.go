@@ -18,7 +18,8 @@ func FileRoutes(r *gin.Engine) {
 	file := r.Group("/file")
 	{
 		file.POST("/upload", handlers.UploadFile)
-		file.GET("/download", handlers.GetFile)
-
+		file.GET("/download/html", handlers.GetHtmlFile)
+		file.GET("/download/text", handlers.GetTextFile)
+		file.GET("/download/image", handlers.GetImageFile)
 	}
 }

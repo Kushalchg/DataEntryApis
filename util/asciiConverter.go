@@ -10,18 +10,21 @@ import (
 	"strings"
 
 	"golang.org/x/image/draw"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/math/fixed"
 	"www.github.com/kushalchg/DataEntryApis/global"
 )
 
-func AsciiConverter(filePath string) (htmlFile, txtFile string) {
+func AsciiConverter(filePath string) (htmlFile, textFile, imageFile string) {
 	// retriving the file name value from filepath
 	fileName := strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))
 
 	global.Logger.Printf("with the use of filePath package %v", fileName)
 
-	image := LoadImage(filePath)
+	image := loadImage(filePath)
 	// greater the image size more clear photo will produce
-	resizeImage := ResizeImage(image, 200)
+	resizeImage := resizeImage(image, 200)
 
 	file, err := os.Create("output/resize.png")
 	if err != nil {
@@ -29,7 +32,7 @@ func AsciiConverter(filePath string) (htmlFile, txtFile string) {
 	}
 	defer file.Close()
 	png.Encode(file, resizeImage)
-	grayImage := ConvGrayScale(resizeImage)
+	grayImage := convGrayScale(resizeImage)
 	// for gray image
 	grayFile, err := os.Create("output/gray.png")
 	if err != nil {
@@ -38,14 +41,15 @@ func AsciiConverter(filePath string) (htmlFile, txtFile string) {
 	}
 	defer file.Close()
 	png.Encode(grayFile, grayImage)
-	resultStr := MapAscii(grayImage)
-	saveToFile(resultStr, fmt.Sprintf("output/%v.txt", fileName))
-	AsciiToHTML(resultStr, fileName)
+	resultStr := mapAscii(grayImage)
+	saveToText(resultStr, fileName)
+	asciiToHTML(resultStr, fileName)
+	asciiToImage(resultStr, fileName)
 
-	return fmt.Sprintf("output/%v.txt", fileName), fmt.Sprintf("output/%v.html", fileName)
+	return fmt.Sprintf("%v.html", fileName), fmt.Sprintf("%v.txt", fileName), fmt.Sprintf("%v.png", fileName)
 
 }
-func LoadImage(filePath string) image.Image {
+func loadImage(filePath string) image.Image {
 	file, err := os.Open(filePath)
 	if err != nil {
 		fmt.Printf("error while opening file %v\n", err)
@@ -57,10 +61,9 @@ func LoadImage(filePath string) image.Image {
 		fmt.Printf("error while decoding image %v\n", err)
 	}
 	return img
-
 }
 
-func ResizeImage(img image.Image, width int) image.Image {
+func resizeImage(img image.Image, width int) image.Image {
 	bounds := img.Bounds()
 	height := (bounds.Dy() * width) / bounds.Dx()
 	newImage := image.NewRGBA(image.Rect(0, 0, width, height))
@@ -69,7 +72,7 @@ func ResizeImage(img image.Image, width int) image.Image {
 	return newImage
 }
 
-func ConvGrayScale(img image.Image) image.Image {
+func convGrayScale(img image.Image) image.Image {
 	bound := img.Bounds()
 	grayImage := image.NewRGBA(bound)
 
@@ -87,7 +90,7 @@ func ConvGrayScale(img image.Image) image.Image {
 	return grayImage
 }
 
-func MapAscii(img image.Image) []string {
+func mapAscii(img image.Image) []string {
 	asciiChar := "$@B%#*+=,.      "
 	bound := img.Bounds()
 	height, width := bound.Max.Y, bound.Max.X
@@ -106,8 +109,9 @@ func MapAscii(img image.Image) []string {
 	return result
 }
 
-func saveToFile(asciiArt []string, filename string) error {
-	file, err := os.Create(filename)
+func saveToText(asciiArt []string, fileName string) error {
+
+	file, err := os.Create(fmt.Sprintf("converted/text/%v.txt", fileName))
 	if err != nil {
 		return err
 	}
@@ -122,8 +126,8 @@ func saveToFile(asciiArt []string, filename string) error {
 	return nil
 }
 
-func AsciiToHTML(ascii []string, fileName string) {
-	HtmlFile, err := os.Create(fmt.Sprintf("output/%v.html", fileName))
+func asciiToHTML(ascii []string, fileName string) {
+	HtmlFile, err := os.Create(fmt.Sprintf("converted/html/%v.html", fileName))
 	if err != nil {
 		fmt.Println("error while creatig html file")
 	}
@@ -175,26 +179,41 @@ func AsciiToHTML(ascii []string, fileName string) {
 	}
 }
 
-// func AsciiToImage(ascii []string) {
-// 	// make tha ractangle with dimensions
-// 	// loop over the height of the image and width of maximum line
+func asciiToImage(strArray []string, fileName string) {
+	// Create a larger image to fit the text
+	fontImage := image.NewRGBA(image.Rect(0, 0, 1400, len(strArray)*11))
+	// backgroundColor := color.RGBA{0, 0, 255, 255}
+	draw.Draw(fontImage, fontImage.Bounds(), image.White, image.Point{}, draw.Src)
+	// draw.Draw(fontImage, fontImage.Bounds(), image.NewUniform(backgroundColor), image.Point{}, draw.Src)
 
-// }
+	// Create the font face
+	drawconf := &font.Drawer{
+		Dst:  fontImage,
+		Src:  image.Black,
+		Face: basicfont.Face7x13,
+	}
+	// Draw the string
+	for i, line := range strArray {
+		drawconf.Dot = fixed.Point26_6{
+			X: fixed.Int26_6(10 * 64),          // 10 pixels from left
+			Y: fixed.Int26_6((20 + i*11) * 64), // Start at 20 pixels from top, then move down by lineHeight for each line
+		}
 
-// func SampleImage() {
-// 	SampleImage := image.NewRGBA(image.Rect(0, 0, 2, 2))
-// 	SampleImage.Set(0, 0, color.RGBA{255, 0, 0, 255})
-// 	SampleImage.Set(1, 0, color.RGBA{0, 0, 255, 255})
-// 	SampleImage.Set(0, 1, color.RGBA{0, 255, 0, 255})
-// 	SampleImage.Set(1, 1, color.RGBA{0, 0, 0, 255})
+		drawconf.DrawString(line)
 
-// 	fmt.Printf("the Sample Image is  %v\n", SampleImage)
+	}
 
-// 	file, err := os.Create("output/sample.png")
-// 	if err != nil {
-// 		fmt.Print("error while creating sample file")
-// 	}
-// defer file.close()
-// 	png.Encode(file, SampleImage)
+	// Create the output file
+	file, err := os.Create(fmt.Sprintf("converted/images/%v.png", fileName))
+	if err != nil {
+		fmt.Println("Error while creating file:", err)
+		return
+	}
+	defer file.Close()
 
-// }
+	// Encode and save the image
+	err = png.Encode(file, fontImage)
+	if err != nil {
+		fmt.Println("Error encoding image:", err)
+	}
+}
