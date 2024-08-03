@@ -2,6 +2,7 @@ package initializers
 
 import (
 	"log"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 )
