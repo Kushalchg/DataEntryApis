@@ -1,4 +1,3 @@
-
 run:
 	@go run main.go
 migrate:

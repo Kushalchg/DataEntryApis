@@ -8,7 +8,7 @@
   <body>
     <h2>Upload a File</h2>
     <form
-      action="http://localhost:8080/file/upload"
+      action="https://dataentryapis.onrender.com/file/upload"
       method="post"
       enctype="multipart/form-data"
     >
@@ -34,7 +34,8 @@
         e.preventDefault();
         var filename = document.getElementById("filename").value;
         window.location.href =
-          "http://localhost:8080/file/download/" + encodeURIComponent(filename);
+          "https://dataentryapis.onrender.com/file/download/" +
+          encodeURIComponent(filename);
       };
     </script>
   </body>

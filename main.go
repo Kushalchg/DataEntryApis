@@ -13,16 +13,15 @@ import (
 
 func init() {
 	global.Validate = validator.New(validator.WithRequiredStructEnabled())
-	// initializers.LoadEnv()
+	initializers.LoadEnv()
 	initializers.Connectdb()
 
 }
 
 func main() {
-	// initializers.DB.AutoMigrate(&models.User{})
-	// global.Logger = util.InitializeLogger()
 	r := gin.Default()
 	r.Static("/converted/images", "./converted/images")
+
 	//setting max file size
 	r.MaxMultipartMemory = 5 << 20
 
