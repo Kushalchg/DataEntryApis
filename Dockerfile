@@ -1,13 +1,32 @@
-# syntax=docker/dockerfile:1
+# Start with the official Golang image
+FROM golang:1.23-alpine AS builder
 
-FROM golang:1.23
+# Set the Current Working Directory inside the container
+WORKDIR /app
 
-WORKDIR /
+# Copy go.mod and go.sum files
+COPY . .
 
-COPY go.mod go.sum ./
-
+# Download all dependencies. Dependencies will be cached if they haven't changed
 RUN go mod download
 
-COPY *.go ./
+# Copy the rest of the application code
+COPY .env /app/
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-gs-ping
+# Build the Go app
+RUN go build -o main .
+
+# Start a new stage from scratch
+FROM alpine:latest  
+
+# Set the Current Working Directory inside the container
+WORKDIR /root/
+
+# Copy the pre-built binary from the builder stage
+COPY --from=builder /app/main .
+
+# Expose port (e.g., 8080)
+EXPOSE 8080
+
+# Command to run the Go app
+CMD ["./main"]
